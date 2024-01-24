@@ -1,0 +1,6 @@
+# 
+*.lock
+*.scc
+.gitattributes
+
+

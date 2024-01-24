@@ -1,0 +1,21 @@
+{
+  "title": "Journal Enricher",
+  "description": "Creates clickable links in journals to view and activate scenes, open compendiums, make Monk rolls",
+  "esmodules": [
+    "text-enrich.js"
+  ],
+  "id": "journal-enricher",
+  "authors": [
+    {
+      "name": "flyingsquad"
+    }
+  ],
+  "compatibility": {
+    "minimum": "11",
+    "verified": "11"
+  },
+  "version": "1.0.0",
+  "download": "https://github.com/flyingsquad/journal-enricher/archive/refs/tags/v1.0.0.zip",
+  "url": "https://github.com/flyingsquad/journal-enricher",
+  "manifest": "https://raw.githubusercontent.com/flyingsquad/journal-enricher/main/module.json"
+}
