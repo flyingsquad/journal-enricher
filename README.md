@@ -1,5 +1,5 @@
-# journal-enricher
- Provide to open scenes and compendiums by clicking journal links. There's also a way to embed requests to Monk's token bar to make skill checks and saving throws.
+# Journal Enricher
+ Provide the ability to open scenes and compendiums by clicking journal links. There's also a way to embed requests to Monk's token bar to make skill checks and saving throws.
  
  The general format is @ViewScene[UUID]. You get the UUID from a scene by opening the Configure Scene dialog and clicking the icon right after the scene name in the dialog title bar. 
  
