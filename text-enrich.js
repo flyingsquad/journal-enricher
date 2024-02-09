@@ -234,3 +234,53 @@ function monkRoll(event) {
 
 	game.MonksTokenBar.requestRoll([],{request:[{"type":type,"key":sk}], dc:Number(dc), silent:false, fastForward:false, rollMode:'roll'});
 }
+
+Hooks.once('init', async function() {
+	
+CONFIG.TextEditor.enrichers.push(
+    {
+        pattern: /@MonkXP\[([^ ]+) ([^ ]+)\]/gm,
+        enricher: async (match, options) => {
+            let xp = match[1];
+			let divide = match[2];
+			let split;
+			switch (divide) {
+            case 'no-split':
+                split = ' each';
+                break;
+            default:
+				divide = 'equal-split';
+                split = ', split equally';
+                break;
+            case 'robin-hood-split':
+                split = ', larger share to lower-level characters';
+                break;
+            case 'nottingham-split':
+                split = ', larger share to higher-level characters';
+				break;
+			}
+			
+            const doc = document.createElement("span");
+            const myData = `<a class="control monkxp" data-xp="${xp}" data-divide="${divide}" data-tooltip="Award XP" aria-describedby="tooltip"><b>${xp} XP${split}</b></a>`;
+            doc.innerHTML = myData;
+            return doc;
+        }
+    });
+
+    $(document).on("click", ".monkxp", monkXP);
+});
+
+function monkXP(event) {
+    event.preventDefault();
+    const xp = event.currentTarget.getAttribute("data-xp");
+    const dividexp = event.currentTarget.getAttribute("data-divide");
+    if (!xp) return;
+
+	let players = canvas.tokens.controlled;
+	if (players.length <= 0) {
+		let tokens = canvas.tokens.children[0].children;
+		players = tokens.filter(t => t.document.flags['monks-tokenbar'].include == 'include');
+	}
+
+	game.MonksTokenBar.assignXP(players,{xp:Number(xp), dividexp: dividexp, silent:false});
+}
