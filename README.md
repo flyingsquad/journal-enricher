@@ -1,5 +1,5 @@
 # Journal Enricher
- Provide the ability to open scenes and compendiums by clicking journal links. There's also a way to embed requests to Monk's token bar to make skill checks and saving throws.
+ Provide the ability to open scenes and compendiums by clicking journal links. There's also a way to embed requests to Monk's token bar to make skill checks and saving throws, as well as a method to jump to pins on the map of the current scene.
  
  The general format is @ViewScene[UUID]. You get the UUID from a scene by opening the Configure Scene dialog and clicking the icon right after the scene name in the dialog title bar. This places the UUID for the scene in the copy buffer, which you can paste between the brackets in @ViewScene[] or @ActivateScene[]. 
  
@@ -31,3 +31,6 @@
 
 @MonkRoll[DC 12 Investigation check]
 
+@PanToPin[JournalEntry.HtmRXrp1A0K3bYQW.JournalEntryPage.sfldPNVbYtYXLjLu]
+
+>Get the UUID by right-clicking the icon in the edit window for the journal page you have pinned. Create the pin on the map by dragging the the name of the page from the journal page index and dropping it on the map. Because the scene where the pin resides has to be the current scene, it's best to include a @ViewScene[] enricher along with the @JumpToPin[]

@@ -15,7 +15,7 @@ CONFIG.TextEditor.enrichers.push(
 
             const scene = game.scenes.get(id);
             const doc = document.createElement("span");
-            const myData = `<a class="control myscene" data-scene-id="${id}" data-tooltip="View scene" aria-describedby="tooltip"><b>${scene?.name}</b></a>`;
+            const myData = `<a class="control myscene" data-scene-id="${id}" data-tooltip="View scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${scene?.name}</u></a>`;
             doc.innerHTML = myData;
             return doc;
         }
@@ -41,7 +41,7 @@ CONFIG.TextEditor.enrichers.push(
 
             const scene = game.scenes.get(id);
             const doc = document.createElement("span");
-            const myData = `<a class="control activatescene" data-scene-id="${id}" data-tooltip="Activate scene" aria-describedby="tooltip"><b>${scene?.name}</b></a>`;
+            const myData = `<a class="control activatescene" data-scene-id="${id}" data-tooltip="Activate scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${scene?.name}</u></a>`;
             doc.innerHTML = myData;
             return doc;
         }
@@ -70,7 +70,7 @@ CONFIG.TextEditor.enrichers.push(
 			const c = game.packs.get(comp);
 			if (c) {
 				const doc = document.createElement("span");
-				const myData = `<a class="control opencomp" comp-id="${comp}" data-tooltip="Open compendium" aria-describedby="tooltip"><b>${c.metadata.label}</b></a>`;
+				const myData = `<a class="control opencomp" comp-id="${comp}" data-tooltip="Open compendium" aria-describedby="tooltip"><i class="fa-solid fa-atlas"></i>&nbsp;<u>${c.metadata.label}</u></a>`;
 				doc.innerHTML = myData;
 				return doc;
 			}
@@ -105,7 +105,7 @@ CONFIG.TextEditor.enrichers.push(
 
             const scene = game.scenes.get(id);
             const doc = document.createElement("span");
-            const myData = `<a class="control viewscene" data-scene-id="${id}" data-tooltip="View scene" aria-describedby="tooltip"><b>${scene?.name}</b></a>`;
+            const myData = `<a class="control viewscene" data-scene-id="${id}" data-tooltip="View scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${scene?.name}</u></a>`;
             doc.innerHTML = myData;
             return doc;
         }
@@ -213,7 +213,7 @@ CONFIG.TextEditor.enrichers.push(
 			}
 
             const doc = document.createElement("span");
-            const myData = `<a class="control monkroll" data-skill="${sk}" data-dc="${dc}" data-type="${type}" data-tooltip="Roll ${type}" aria-describedby="tooltip"><b>DC ${dc} ${skill} ${longtype}</b></a>`;
+            const myData = `<a class="control monkroll" data-skill="${sk}" data-dc="${dc}" data-type="${type}" data-tooltip="Roll ${type}" aria-describedby="tooltip"><i class="fa-solid fa-dice-d20"></i>&nbsp;<u>DC ${dc} ${skill} ${longtype}</u></a>`;
             doc.innerHTML = myData;
             return doc;
         }
@@ -261,7 +261,7 @@ CONFIG.TextEditor.enrichers.push(
 			}
 			
             const doc = document.createElement("span");
-            const myData = `<a class="control monkxp" data-xp="${xp}" data-divide="${divide}" data-tooltip="Award XP" aria-describedby="tooltip"><b>${xp} XP${split}</b></a>`;
+            const myData = `<a class="control monkxp" data-xp="${xp}" data-divide="${divide}" data-tooltip="Award XP" aria-describedby="tooltip"><u>${xp} XP${split}</u></a>`;
             doc.innerHTML = myData;
             return doc;
         }
@@ -283,4 +283,45 @@ function monkXP(event) {
 	}
 
 	game.MonksTokenBar.assignXP(players,{xp:Number(xp), dividexp: dividexp, silent:false});
+}
+
+Hooks.once('init', async function() {
+	
+CONFIG.TextEditor.enrichers.push(
+    {
+        pattern: /@PanToPin\[(.+?)\]/gm,
+        enricher: async (match, options) => {
+            let ref = match[1];
+			let page = getPinPage(ref);
+			if (!page)
+				return "";
+            const doc = document.createElement("span");
+            const myData = `<a class="control pantopin" data-ref="${ref}" data-tooltip="Jump to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${page.name}</u></a>`;
+            doc.innerHTML = myData;
+            return doc;
+        }
+    });
+
+    $(document).on("click", ".pantopin", panToPin);
+});
+
+function panToPin(event) {
+    event.preventDefault();
+    const ref = event.currentTarget.getAttribute("data-ref");
+    if (!ref) return;
+	let page = getPinPage(ref);
+	if (page?.sceneNote)
+		canvas.notes.panToNote(page.sceneNote);
+}
+
+function getPinPage(ref) {
+	let a = ref.split('.');
+	let jID = a[1];
+	let pageID = a[3];
+
+	let entry = game.journal.get(jID);
+	if (!entry)
+		return null;
+
+	return entry.pages.get(pageID);
 }
