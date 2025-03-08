@@ -325,3 +325,76 @@ function getPinPage(ref) {
 
 	return entry.pages.get(pageID);
 }
+
+
+Hooks.once('init', async function() {
+	
+CONFIG.TextEditor.enrichers.push(
+    {
+        pattern: /@Goto\[([^:]+) *: *(.+)\]/gm,
+        enricher: async (match, options) => {
+            let sceneID = match[1];
+            let label = match[2];
+			
+			const arr = sceneID.split('.');
+            let id = '';
+
+			if (arr.length == 2 && arr[0] == 'Scene')
+				id = arr[1];
+			else
+				id = arr[0];
+
+            const scene = game.scenes.get(id);
+			
+			if (!scene)
+				return "";
+            const doc = document.createElement("span");
+            const myData = `<a class="control goto" data-scene="${id}" data-label="${label}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${scene.name}: ${label}</u></a>`;
+            doc.innerHTML = myData;
+            return doc;
+        }
+    });
+
+    $(document).on("click", ".goto", Goto);
+});
+
+async function Goto(event) {
+    event.preventDefault();
+
+	let sceneID = event.currentTarget.getAttribute("data-scene");
+	let label = event.currentTarget.getAttribute("data-label");
+
+	let placeable;
+	let x;
+	let y;
+
+	let scene;
+
+	if (sceneID) {
+		scene = game.scenes.get(sceneID);
+		if (!scene) {
+			ui.notifications.warning('No such scene ID: ' + sceneID);
+			return;
+		}
+	}
+
+	placeable = scene.notes.find(n => n.label === label);
+
+	if (placeable) {
+		x = placeable.x;
+		y = placeable.y;
+	} else {
+		ui.notifications.warning('No such label: ' + label);
+		return;
+	}
+
+	if (x && y) {
+		if (scene !== game.canvas.scene) {
+			await scene.view();
+		}
+		canvas.pan({
+			x: parseInt(x),
+			y: parseInt(y)
+		});
+	}
+}

@@ -3,7 +3,7 @@
  
  The general format is @ViewScene[UUID]. You get the UUID from a scene by opening the Configure Scene dialog and clicking the icon right after the scene name in the dialog title bar. This places the UUID for the scene in the copy buffer, which you can paste between the brackets in @ViewScene[] or @ActivateScene[]. 
  
- When you open a journal, the system calls this text enricher and performs substitutions on the text, turning @ViewScene[UUID] into the name of the scene, and making it a hyperlink so that when you click it, the scene is displayed. @ActivateScene[], @OpenCompendium[], @MonkXP[] and @MonkRoll[] are processed similarly.
+ When you open a journal, the system calls this text enricher and performs substitutions on the text, turning @ViewScene[UUID] into the name of the scene, and making it a hyperlink so that when you click it, the scene is displayed. @ActivateScene[], @Goto, @OpenCompendium[], @MonkXP[] and @MonkRoll[] are processed similarly.
  
  The compendium name is in two parts: the first part is "world" for compendiums in your world, or the module or system name, following by a dot, then the id of the pack, which you find system.json or module.json file where the compendium is stored.
  
@@ -14,6 +14,10 @@
 @ViewScene[dgTrK7gSBDbVcIss]
 
 @ActivateScene[u3msVy6pdwZ93lCp]
+
+@Goto[Scene.UUID: Label]
+
+>The scene UUID is followed by a colon and the text of a Journal Note that has been placed on a map (the Scene. part is optional). This combines the functionality of @ViewScene and @PanToPin.
 
 @OpenCompendium[world.mycompendium]
 
@@ -33,4 +37,5 @@
 
 @PanToPin[JournalEntry.HtmRXrp1A0K3bYQW.JournalEntryPage.sfldPNVbYtYXLjLu]
 
->Get the UUID by right-clicking the icon in the edit window for the journal page you have pinned. Create the pin on the map by dragging the the name of the page from the journal page index and dropping it on the map. Because the scene where the pin resides has to be the current scene, it's best to include a @ViewScene[] enricher along with the @JumpToPin[]
+>Get the UUID by right-clicking the icon in the edit window for the journal page you have pinned. Create the pin on the map by dragging the the name of the page from the journal page index and dropping it on the map. Because the scene where the pin resides has to be the current scene, it's best to include a @ViewScene[] enricher along with the @PanToPin[], or just use @Goto (added in a later release).
+
