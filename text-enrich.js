@@ -398,3 +398,29 @@ async function Goto(event) {
 		});
 	}
 }
+
+Hooks.on("init", function() {
+	game.keybindings.register("journal-enricher", "moveTokens", {
+	  name: "Move Selected Tokens",
+	  hint: "When this key is pressed the selected tokens will be moved to the current mouse location.",
+	  editable: [
+		{
+		  key: "m"
+		}
+	  ],
+	  onDown: keybind => {
+		if (canvas.tokens.controlled.length < 1)
+			return;
+		const deltaX = canvas.mousePosition.x - canvas.tokens.controlled[0].x;
+		const deltaY = canvas.mousePosition.y - canvas.tokens.controlled[0].y;
+		for (let token of canvas.tokens.controlled) {
+			let gridx = Math.floor((token.x + deltaX) / canvas.grid.size);
+			let gridy = Math.floor((token.y + deltaY) / canvas.grid.size);
+			token.document.update({"x": gridx * canvas.grid.size, "y": gridy * canvas.grid.size});
+		}
+	  },
+	  restricted: true,             // Restrict this Keybinding to gamemaster only?
+	  precedence: CONST.KEYBINDING_PRECEDENCE.NORMAL
+	});
+
+});
