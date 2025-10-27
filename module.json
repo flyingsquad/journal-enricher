@@ -14,8 +14,8 @@
     "minimum": "11",
     "verified": "13"
   },
-  "version": "1.0.8",
-  "download": "https://github.com/flyingsquad/journal-enricher/archive/refs/tags/v1.0.8.zip",
+  "version": "1.0.9",
+  "download": "https://github.com/flyingsquad/journal-enricher/archive/refs/tags/v1.0.9.zip",
   "url": "https://github.com/flyingsquad/journal-enricher",
   "manifest": "https://raw.githubusercontent.com/flyingsquad/journal-enricher/main/module.json"
 }
