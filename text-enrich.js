@@ -63,14 +63,19 @@ Hooks.once('init', async function() {
 	
 CONFIG.TextEditor.enrichers.push(
     {
-        pattern: /@OpenCompendium\[(.+?)\]/gm,
+        pattern: /@OpenCompendium\[(.+?)\]({(.+)})?/gm,
         enricher: async (match, options) => {
 
 			const comp = match[1];
 			const c = game.packs.get(comp);
 			if (c) {
+				let text;
+				if (match[3])
+					text = match[3];
+				else
+					text = c.metadata.label;
 				const doc = document.createElement("span");
-				const myData = `<a class="control opencomp" comp-id="${comp}" data-tooltip="Open compendium" aria-describedby="tooltip"><i class="fa-solid fa-atlas"></i>&nbsp;<u>${c.metadata.label}</u></a>`;
+				const myData = `<a class="control opencomp" comp-id="${comp}" data-tooltip="Open compendium" aria-describedby="tooltip"><i class="fa-solid fa-atlas"></i>&nbsp;<u>${text}</u></a>`;
 				doc.innerHTML = myData;
 				return doc;
 			}
