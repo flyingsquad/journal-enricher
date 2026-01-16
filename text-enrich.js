@@ -97,7 +97,7 @@ Hooks.once('init', async function() {
 
 CONFIG.TextEditor.enrichers.push(
     {
-        pattern: /@ViewScene\[(.+?)\]/gm,
+        pattern: /@ViewScene\[(.+?)\]({(.+)})?/gm,
         enricher: async (match, options) => {
 
 			const arr = match[1].split('.');
@@ -110,8 +110,10 @@ CONFIG.TextEditor.enrichers.push(
 
             const scene = game.scenes.get(id);
             const doc = document.createElement("span");
-            const myData = `<a class="control viewscene" data-scene-id="${id}" data-tooltip="View scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${scene?.name}</u></a>`;
-            doc.innerHTML = myData;
+			if (match[3])
+				doc.innerHTML = `<a class="control viewscene" data-scene-id="${id}" data-tooltip="View scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${match[3]}</u></a>`;
+			else
+				doc.innerHTML = `<a class="control viewscene" data-scene-id="${id}" data-tooltip="View scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${scene?.name}</u></a>`;
             return doc;
         }
     });
