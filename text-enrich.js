@@ -63,7 +63,7 @@ Hooks.once('init', async function() {
 	
 CONFIG.TextEditor.enrichers.push(
     {
-        pattern: /@OpenCompendium\[(.+?)\]({(.+)})?/gm,
+        pattern: /@OpenCompendium\[(.+?)\]({([^}]+)})?/gm,
         enricher: async (match, options) => {
 
 			const comp = match[1];
@@ -336,11 +336,10 @@ Hooks.once('init', async function() {
 	
 CONFIG.TextEditor.enrichers.push(
     {
-        pattern: /@Goto\[([^:]+) *: *(.+)\]/gm,
+        pattern: /@Goto\[([^:]+) *: *(.+)\]({(.+)})?/gm,
         enricher: async (match, options) => {
             let sceneID = match[1];
             let label = match[2];
-			
 			const arr = sceneID.split('.');
             let id = '';
 
@@ -354,7 +353,11 @@ CONFIG.TextEditor.enrichers.push(
 			if (!scene)
 				return "";
             const doc = document.createElement("span");
-            const myData = `<a class="control goto" data-scene="${id}" data-label="${label}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${scene.name}: ${label}</u></a>`;
+            let myData;
+			if (match[4])
+				myData = `<a class="control goto" data-scene="${id}" data-label="${label}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${match[4]}</u></a>`;
+			else
+				myData = `<a class="control goto" data-scene="${id}" data-label="${label}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${scene.name}: ${label}</u></a>`;
             doc.innerHTML = myData;
             return doc;
         }
