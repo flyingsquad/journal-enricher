@@ -394,17 +394,25 @@ async function Goto(event) {
 		x = placeable.x;
 		y = placeable.y;
 	} else {
-		ui.notifications.warning('No such label: ' + label);
-		return;
+		const coords = label.match(/ *([0-9]+) *, *([0-9]+)/);
+		if (!coords) {
+			ui.notifications.warn('No such label: ' + label);
+			return;
+		}
+		x = coords[1];
+		y = coords[2];
 	}
 
 	if (x && y) {
 		if (scene !== game.canvas.scene) {
 			await scene.view();
 		}
+		x = parseInt(x);
+		y = parseInt(y);
 		canvas.pan({
-			x: parseInt(x),
-			y: parseInt(y)
+			x: x,
+			y: y
 		});
+		canvas.ping({x: x, y: y});
 	}
 }
