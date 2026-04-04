@@ -15,7 +15,7 @@ With Foundry V14, the level may also be specified:
  
 The enrichers @ActivateScene[], @Goto, @OpenCompendium[], @MonkXP[] and @MonkRoll[] are processed similarly.
  
-The compendium name is in two parts: the first part is "world" for compendiums in your world, or the module or system name, following by a dot, then the id of the pack, which you find system.json or module.json file where the compendium is stored.
+The compendium name is in two parts: the first part is "world" for compendiums in your world, or the module or system name, following by a dot, then the id of the pack, which you can find in the system.json or module.json file where the compendium is stored.
  
 For example, the D&D 5e Monsters compendium is @OpenCompendium[dnd5e.monsters].
  
