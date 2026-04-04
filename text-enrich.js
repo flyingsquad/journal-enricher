@@ -38,7 +38,7 @@ CONFIG.TextEditor.enrichers.push(
 				}					
 			} else
 				sceneName = "undefined";
-			doc.innerHTML = `<a class="control activatescene" data-scene-id="${id}" data-level-id="${levelId}" data-tooltip="View scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${sceneName}</u></a>`;
+			doc.innerHTML = `<a class="control activatescene" data-scene-id="${id}" data-level-id="${levelId}" data-tooltip="Activate Scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${sceneName}</u></a>`;
             return doc;
         }
     });
