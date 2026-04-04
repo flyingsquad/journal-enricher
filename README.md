@@ -1,15 +1,25 @@
 # Journal Enricher
- Provide the ability to open scenes and compendiums by clicking journal links. There's also a way to embed requests to Monk's token bar to make skill checks and saving throws, as well as a method to jump to pins on the map of the current scene.
+Provide the ability to open scenes and compendiums by clicking journal links. There's also a way to embed requests to Monk's token bar to make skill checks and saving throws, as well as a method to jump to pins on the map of the current scene.
  
- The general format is @ViewScene[UUID]. You get the UUID from a scene by opening the Configure Scene dialog and clicking the icon right after the scene name in the dialog title bar. This places the UUID for the scene in the copy buffer, which you can paste between the brackets in @ViewScene[] or @ActivateScene[]. 
+The general format is @ViewScene[Scene.UUID]. You get the UUID from a scene by opening the Configure Scene dialog and clicking the icon right after the scene name in the dialog title bar. This places the UUID for the scene in the copy buffer, which you can paste between the brackets in @ViewScene[] or @ActivateScene[].
  
- When you open a journal, the system calls this text enricher and performs substitutions on the text, turning @ViewScene[UUID] into the name of the scene, and making it a hyperlink so that when you click it, the scene is displayed. @ActivateScene[], @Goto, @OpenCompendium[], @MonkXP[] and @MonkRoll[] are processed similarly.
+When you open a journal, the system calls this text enricher and performs substitutions on the text, turning @ViewScene[UUID] into the name of the scene, and making it a hyperlink so that when you click it, the scene is displayed.
  
- The compendium name is in two parts: the first part is "world" for compendiums in your world, or the module or system name, following by a dot, then the id of the pack, which you find system.json or module.json file where the compendium is stored.
+If you place text bracketed by braces "{}" that text will be displayed instead of the scene name:
  
- For example, the D&D 5e Monsters compendium is @OpenCompendium[dnd5e.monsters].
+@ViewScene[Scene.dgTrK7gSBDbVcIss]{My Scene Description}
  
- Here are some examples:
+With Foundry V14, the level may also be specified:
+
+@ViewScene[Scene.dgTrK7gSBDbVcIss.Level.sfldPNVbYtYXLjLu]
+ 
+The enrichers @ActivateScene[], @Goto, @OpenCompendium[], @MonkXP[] and @MonkRoll[] are processed similarly.
+ 
+The compendium name is in two parts: the first part is "world" for compendiums in your world, or the module or system name, following by a dot, then the id of the pack, which you find system.json or module.json file where the compendium is stored.
+ 
+For example, the D&D 5e Monsters compendium is @OpenCompendium[dnd5e.monsters].
+ 
+Here are some examples:
 
 @ViewScene[dgTrK7gSBDbVcIss]
 
@@ -17,7 +27,11 @@
 
 @Goto[Scene.UUID: Label]
 
->The scene UUID is followed by a colon and the text of a Journal Note that has been placed on a map (the Scene. part is optional). This combines the functionality of @ViewScene and @PanToPin.
+>The scene UUID is followed by a colon and the text of a Journal Note that has been placed on a map (the Scene. part is optional). This combines the functionality of @ViewScene and @PanToPin. A Level may also be specified, as above with @ViewScene.
+
+@Goto[Scene.UUID: x, y]
+
+>If the text after the colon consists of two numbers separated by a comma, it is taken as an absolute coordinate value in the scene. To get these coordinates place a token or other placeable on the scene and then open its details to find the coordinates.
 
 @OpenCompendium[world.mycompendium]
 
