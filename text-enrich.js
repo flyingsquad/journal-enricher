@@ -2,47 +2,43 @@ Hooks.once('init', async function() {
 
 CONFIG.TextEditor.enrichers.push(
     {
-        pattern: /@MyScene\[(.+?)\]/gm,
+        pattern: /@ActivateScene\[(.+?)\]({(.+)})?/gm,
         enricher: async (match, options) => {
 
 			const arr = match[1].split('.');
             let id = '';
 
-			if (arr.length == 2 && arr[0] == 'Scene')
+			if (arr.length >= 2 && arr[0] == 'Scene')
 				id = arr[1];
 			else
 				id = arr[0];
+			
+			let levelId = '';
+			let levelName = '';
+			let sceneName = '';
+
+			// Check for level: Scene.52hYpT4OpAybEUlF.Level.7WQgsrVDsyekistP
+			if (arr.length == 4 && arr[2] == 'Level') {
+				levelId = arr[3];
+			}
 
             const scene = game.scenes.get(id);
             const doc = document.createElement("span");
-            const myData = `<a class="control myscene" data-scene-id="${id}" data-tooltip="View scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${scene?.name}</u></a>`;
-            doc.innerHTML = myData;
-            return doc;
-        }
-    });
 
-    $(document).on("click", ".myscene", viewScene);
-});
-
-Hooks.once('init', async function() {
-
-CONFIG.TextEditor.enrichers.push(
-    {
-        pattern: /@ActivateScene\[(.+?)\]/gm,
-        enricher: async (match, options) => {
-
-			const arr = match[1].split('.');
-            let id = '';
-
-			if (arr.length == 2 && arr[0] == 'Scene')
-				id = arr[1];
-			else
-				id = arr[0];
-
-            const scene = game.scenes.get(id);
-            const doc = document.createElement("span");
-            const myData = `<a class="control activatescene" data-scene-id="${id}" data-tooltip="Activate scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${scene?.name}</u></a>`;
-            doc.innerHTML = myData;
+			if (match[3])
+				sceneName = match[3];
+			else if (scene) {
+				sceneName = scene.name;
+				if (levelId) {
+					const level = scene.levels.get(levelId);
+					if (level) {
+						sceneName += `: ${level.name}`;
+					} else
+						levelId = '';
+				}					
+			} else
+				sceneName = "undefined";
+			doc.innerHTML = `<a class="control activatescene" data-scene-id="${id}" data-level-id="${levelId}" data-tooltip="View scene" aria-describedby="tooltip"><i class="fa-solid fa-map"></i>&nbsp;<u>${sceneName}</u></a>`;
             return doc;
         }
     });
@@ -50,14 +46,20 @@ CONFIG.TextEditor.enrichers.push(
     $(document).on("click", ".activatescene", activateScene);
 });
 
-function activateScene(event) {
+async function activateScene(event) {
     event.preventDefault();
     const id = event.currentTarget.getAttribute("data-scene-id");
     if (!id) return;
 	const scene = game.scenes.get(id);
-	if (scene)
-		scene.activate();
+	if (scene) {
+		await scene.activate();
+		const levelId = event.currentTarget.getAttribute("data-level-id");
+		if (levelId)
+			scene.view({level: levelId});
+
+	}
 }
+
 
 Hooks.once('init', async function() {
 	
@@ -151,7 +153,7 @@ function viewScene(event) {
 		if (levelId)
 			scene.view({level: levelId});
 		else
-			scene.view(options);
+			scene.view();
 	}
 }
 
