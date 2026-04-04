@@ -370,22 +370,37 @@ CONFIG.TextEditor.enrichers.push(
 			const arr = sceneID.split('.');
             let id = '';
 
-			if (arr.length == 2 && arr[0] == 'Scene')
+			if (arr.length >= 2 && arr[0] == 'Scene')
 				id = arr[1];
 			else
 				id = arr[0];
 
+			let levelId = '';
+			let sceneName = '';
+
+			// Check for level: Scene.52hYpT4OpAybEUlF.Level.7WQgsrVDsyekistP
+			if (arr.length == 4 && arr[2] == 'Level')
+				levelId = arr[3];
+
             const scene = game.scenes.get(id);
 			
 			if (!scene)
-				return "";
+				sceneName = "undefined";
+			else if (match[4])
+				sceneName = match[4];
+			else {
+				sceneName = scene.name;
+				if (levelId) {
+					const level = scene.levels.get(levelId);
+					if (level)
+						sceneName += `: ${level.name}`;
+					else
+						sceneName += `: unknown level (${levelId})`;
+				}
+				sceneName += `: ${label}`;
+			}
             const doc = document.createElement("span");
-            let myData;
-			if (match[4])
-				myData = `<a class="control goto" data-scene="${id}" data-label="${label}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${match[4]}</u></a>`;
-			else
-				myData = `<a class="control goto" data-scene="${id}" data-label="${label}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${scene.name}: ${label}</u></a>`;
-            doc.innerHTML = myData;
+			doc.innerHTML = `<a class="control goto" data-scene="${id}" data-level="${levelId}" data-label="${label}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${sceneName}</u></a>`;
             return doc;
         }
     });
@@ -397,6 +412,7 @@ async function Goto(event) {
     event.preventDefault();
 
 	let sceneID = event.currentTarget.getAttribute("data-scene");
+	let levelID = event.currentTarget.getAttribute("data-level");
 	let label = event.currentTarget.getAttribute("data-label");
 
 	let placeable;
@@ -429,9 +445,10 @@ async function Goto(event) {
 	}
 
 	if (x && y) {
-		if (scene !== game.canvas.scene) {
+		if (levelID)
+			await scene.view({level: levelID});
+		else
 			await scene.view();
-		}
 		x = parseInt(x);
 		y = parseInt(y);
 		canvas.pan({
