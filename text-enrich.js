@@ -460,3 +460,103 @@ async function Goto(event) {
 		canvas.ping({x: x, y: y});
 	}
 }
+
+
+Hooks.once('init', async function() {
+	
+CONFIG.TextEditor.enrichers.push(
+    {
+        pattern: /@Chat\[(.+?)\]/gm,
+        enricher: async (match, options) => {
+            let message = match[1];
+			let msgText = '';
+			if (!message)
+				return "";
+			let m = message.match(/Actor.([^: ]+) *:(.+$)/);
+			let actor = '';
+			if (m) {
+				actor = m[1];
+				const a = game.actors.get(actor);
+				if (a) {
+					message = `${a.name}: ${m[2]}`;
+					msgText = m[2];
+				} else {
+					message = m[2];
+					msgText = m[2];
+				}
+			} else
+				msgText = message;
+            const doc = document.createElement("span");
+		const myData = `<a class="control chat" data-message="${msgText}" data-actor="${actor}" data-tooltip="Jump to Location" aria-describedby="tooltip"><i class="fa-solid fa-comment"></i>&nbsp;${message}</a>`;
+            doc.innerHTML = myData;
+            return doc;
+        }
+    });
+
+    $(document).on("click", ".chat", chat);
+});
+
+function chat(event) {
+	if (!game.user.isGM) {
+		ui.notifications.notify("Only GMs may use this function.");
+		return;
+	}
+    event.preventDefault();
+    const message = event.currentTarget.getAttribute("data-message");
+	const actor = event.currentTarget.getAttribute("data-actor");
+    if (!message) return;
+	let data = {content: message};
+	if (actor) {
+		data.speaker = {actor: actor};
+	} else if (canvas.tokens.controlled.length > 0) {
+		const t = canvas.tokens.controlled[0];
+		data.speaker = {
+			token: t.id,
+			alias: t.name
+		};
+	}
+	ChatMessage.create(data);
+}
+
+
+Hooks.once('init', async function() {
+	
+CONFIG.TextEditor.enrichers.push(
+    {
+        pattern: /@Whisper\[(.+?)\]/gm,
+        enricher: async (match, options) => {
+            let message = match[1];
+            const doc = document.createElement("span");
+			const myData = `<a class="control whisper" data-message="${message}" data-tooltip="Whisper to Selected Tokens" aria-describedby="tooltip"><i class="fa-solid fa-comment"></i>&nbsp;Whisper: ${message}</a>`;
+            doc.innerHTML = myData;
+            return doc;
+        }
+    });
+
+    $(document).on("click", ".whisper", whisper);
+});
+
+function whisper(event) {
+	if (!game.user.isGM) {
+		ui.notifications.notify("Only GMs may use this function.");
+		return;
+	}
+    event.preventDefault();
+    const message = event.currentTarget.getAttribute("data-message");
+    if (!message) return;
+	let data = {
+		content: message,
+		whisper: []
+	};
+	for (const t of canvas.tokens.controlled) {
+		for (const owner in t.actor.ownership) {
+			if (owner.length != 16)
+				continue;
+			if (t.actor.ownership[owner] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER)
+				if (!data.whisper.includes(owner) && owner != game.user.id)
+					data.whisper.push(owner);
+		}
+	}
+
+	ChatMessage.create(data);
+}
