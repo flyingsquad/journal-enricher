@@ -54,6 +54,7 @@ Here are some examples:
 >Get the UUID by right-clicking the icon in the edit window for the journal page you have pinned. Create the pin on the map by dragging the the name of the page from the journal page index and dropping it on the map. Because the scene where the pin resides has to be the current scene, it's best to include a @ViewScene[] enricher along with the @PanToPin[], or just use @Goto (added in a later release).
 
 @Chat[Message to all players from GM]
+
 @Chat[Actor.oZpiKcq4t8NSUyse: The actor with the indicated UUID said this!]
 
 >Send a chat message to all players using the selected token as the speaker. If no tokens are selected the message comes from the GM. If Actor.UUID is specified the specified actor is identified as the speaker.
