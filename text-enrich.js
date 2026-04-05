@@ -468,7 +468,7 @@ CONFIG.TextEditor.enrichers.push(
     {
         pattern: /@Chat\[(.+?)\]/gm,
         enricher: async (match, options) => {
-            let message = match[1];
+            let message = match[1].replaceAll(/"/g, '&quot;');
 			let msgText = '';
 			if (!message)
 				return "";
@@ -525,7 +525,7 @@ CONFIG.TextEditor.enrichers.push(
     {
         pattern: /@Whisper\[(.+?)\]/gm,
         enricher: async (match, options) => {
-            let message = match[1];
+            let message = match[1].replaceAll(/"/g, '&quot;');
             const doc = document.createElement("span");
 			const myData = `<a class="control whisper" data-message="${message}" data-tooltip="Whisper to Selected Tokens" aria-describedby="tooltip"><i class="fa-solid fa-comment"></i>&nbsp;Whisper: ${message}</a>`;
             doc.innerHTML = myData;
