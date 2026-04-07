@@ -474,12 +474,14 @@ CONFIG.TextEditor.enrichers.push(
 				return "";
 			let m = message.match(/Actor.([^: ]+) *:(.+$)/);
 			let actor = '';
+			let tooltip = "Chat Message from Selected Token";
 			if (m) {
 				actor = m[1];
 				const a = game.actors.get(actor);
 				if (a) {
 					message = `${a.name}: ${m[2]}`;
 					msgText = m[2];
+					tooltip = `Chat Message from ${a.name}`;
 				} else {
 					message = m[2];
 					msgText = m[2];
@@ -487,7 +489,7 @@ CONFIG.TextEditor.enrichers.push(
 			} else
 				msgText = message;
             const doc = document.createElement("span");
-		const myData = `<a class="control chat" data-message="${msgText}" data-actor="${actor}" data-tooltip="Jump to Location" aria-describedby="tooltip"><i class="fa-solid fa-comment"></i>&nbsp;${message}</a>`;
+		const myData = `<a class="control chat" data-message="${msgText}" data-actor="${actor}" data-tooltip="${tooltip}" aria-describedby="tooltip"><i class="fa-solid fa-comment"></i>&nbsp;${message}</a>`;
             doc.innerHTML = myData;
             return doc;
         }
