@@ -365,10 +365,11 @@ Hooks.once('init', async function() {
 	
 CONFIG.TextEditor.enrichers.push(
     {
-        pattern: /@Goto\[([^:]+) *: *(.+)\]({(.+)})?/gm,
+        pattern: /@(Goto|Travel)\[([^:]+) *: *([^\]]+)\]({([^}]+)})?/gm,
         enricher: async (match, options) => {
-            let sceneID = match[1];
-            let label = match[2];
+			let mode = match[1];
+            let sceneID = match[2];
+            let label = match[3];
 			const arr = sceneID.split('.');
             let id = '';
 
@@ -381,6 +382,7 @@ CONFIG.TextEditor.enrichers.push(
 			let sceneName = '';
 
 			// Check for level: Scene.52hYpT4OpAybEUlF.Level.7WQgsrVDsyekistP
+
 			if (arr.length == 4 && arr[2] == 'Level')
 				levelId = arr[3];
 
@@ -388,8 +390,8 @@ CONFIG.TextEditor.enrichers.push(
 			
 			if (!scene)
 				sceneName = "undefined";
-			else if (match[4])
-				sceneName = match[4];
+			else if (match[5])
+				sceneName = match[5];
 			else {
 				sceneName = scene.name;
 				if (levelId) {
@@ -402,7 +404,7 @@ CONFIG.TextEditor.enrichers.push(
 				sceneName += `: ${label}`;
 			}
             const doc = document.createElement("span");
-			doc.innerHTML = `<a class="control goto" data-scene="${id}" data-level="${levelId}" data-label="${label}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${sceneName}</u></a>`;
+			doc.innerHTML = `<a class="control goto" data-scene="${id}" data-level="${levelId}" data-label="${label}" data-mode="${mode}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${sceneName}</u></a>`;
             return doc;
         }
     });
@@ -416,6 +418,7 @@ async function Goto(event) {
 	let sceneID = event.currentTarget.getAttribute("data-scene");
 	let levelID = event.currentTarget.getAttribute("data-level");
 	let label = event.currentTarget.getAttribute("data-label");
+	let mode = event.currentTarget.getAttribute("data-mode");
 
 	let placeable;
 	let x;
@@ -457,7 +460,40 @@ async function Goto(event) {
 			x: x,
 			y: y
 		});
-		canvas.ping({x: x, y: y});
+		if (mode == 'Goto')
+			canvas.ping({x: x, y: y});
+		else
+			moveTokens(x, y);
+	}
+}
+
+async function moveTokens(x, y) {
+	if (canvas.tokens.controlled.length < 1) {
+		// If player and no token on the scene create a token
+		// for the player's character (if one's assigned).
+		if (game.user.isGM || !game.user.character)
+			return;
+		let tokens =[];
+		tokens.push(await game.user.character.getTokenDocument({
+			x: x,
+			y: y
+		}));
+
+		let tokenList = await canvas.scene.createEmbeddedDocuments('Token', tokens);
+		return;
+	}
+
+	const deltaX = x - canvas.tokens.controlled[0].x;
+	const deltaY = y - canvas.tokens.controlled[0].y;
+	const elevation = canvas.tokens.controlled[0].document.elevation;
+
+	for (let token of canvas.tokens.controlled) {
+		let gridx = Math.floor((token.x + deltaX) / canvas.grid.size);
+		let gridy = Math.floor((token.y + deltaY) / canvas.grid.size);
+		const x = gridx * canvas.grid.size;
+		const y = gridy * canvas.grid.size;
+		const waypoints = [{x: x, y: y}];
+		token.document.move([{x: x, y: y, elevation: elevation}], {animate: false, constrainOptions: {ignoreWalls: true}});
 	}
 }
 
