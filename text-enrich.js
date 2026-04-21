@@ -404,7 +404,8 @@ CONFIG.TextEditor.enrichers.push(
 				sceneName += `: ${label}`;
 			}
             const doc = document.createElement("span");
-			doc.innerHTML = `<a class="control goto" data-scene="${id}" data-level="${levelId}" data-label="${label}" data-mode="${mode}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid fa-crosshairs"></i>&nbsp;<u>${sceneName}</u></a>`;
+			const icon = mode == 'Goto' ? 'fa-crosshairs' : 'fa-arrow-alt-circle-right';
+			doc.innerHTML = `<a class="control goto" data-scene="${id}" data-level="${levelId}" data-label="${label}" data-mode="${mode}" data-tooltip="Go to Location" aria-describedby="tooltip"><i class="fa-solid ${icon}"></i>&nbsp;<u>${sceneName}</u></a>`;
             return doc;
         }
     });
