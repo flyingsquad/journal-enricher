@@ -33,6 +33,10 @@ Here are some examples:
 
 >If the text after the colon consists of two numbers separated by a comma, it is taken as an absolute coordinate value in the scene. To get these coordinates place a token or other placeable on the scene and then open its details to find the coordinates. This allows you to ping a location on the map without having to add a note.
 
+@Travel[Scene.u3msVy6pdwZ93lCp: Bank]{Travel to Bank}
+
+>Like @Goto, except that selected tokens are moved to the location, rather than pinging the location. If user is a player and no token exists on the scene, a token is created for the player's character and placed at the location. If the user is a GM with no selected tokens the location in the scene is displayed.
+
 @OpenCompendium[world.mycompendium]
 
 @OpenCompendium[dnd5e.monsters]
