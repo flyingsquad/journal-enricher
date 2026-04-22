@@ -470,18 +470,36 @@ async function Goto(event) {
 
 async function moveTokens(x, y) {
 	if (canvas.tokens.controlled.length < 1) {
-		// If player and no token on the scene create a token
+		// If user is a player and has no token on the scene create a token
 		// for the player's character (if one's assigned).
+
 		if (game.user.isGM || !game.user.character)
 			return;
-		let tokens =[];
-		tokens.push(await game.user.character.getTokenDocument({
-			x: x,
-			y: y
-		}));
 
-		let tokenList = await canvas.scene.createEmbeddedDocuments('Token', tokens);
-		return;
+		// Find the assigned character.
+
+		const tokens = canvas.tokens.placeables;
+		const token = tokens.find(t => {
+			if (!t.actor) return false;
+			return t.actor.id == game.user.character.id;
+		});
+
+		if (token) {
+			// Select the token.
+			canvas.tokens.releaseAll();
+			await token.control({ releaseOthers: true });
+			
+		} else {
+			// No token for assigned character found for player; create one.
+			let tokens = [];
+			tokens.push(await game.user.character.getTokenDocument({
+				x: x,
+				y: y
+			}));
+
+			let tokenList = await canvas.scene.createEmbeddedDocuments('Token', tokens);
+			return;
+		}
 	}
 
 	const deltaX = x - canvas.tokens.controlled[0].x;
