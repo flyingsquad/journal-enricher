@@ -450,44 +450,63 @@ async function Goto(event) {
 		y = coords[2];
 	}
 
-	if (x && y) {
-		if (levelID)
-			await scene.view({level: levelID});
-		else
-			await scene.view();
+	if (x != undefined && y != undefined) {
 		x = parseInt(x);
 		y = parseInt(y);
-		canvas.pan({
-			x: x,
-			y: y
-		});
-		if (mode == 'Goto')
-			canvas.ping({x: x, y: y});
-		else
-			moveTokens(x, y);
+
+		if (game.scenes.current.id == sceneID) {
+			if (levelID)
+				await scene.view({level: levelID});
+			canvas.pan({
+				x: x,
+				y: y
+			});
+			if (mode == 'Goto')
+				canvas.ping({x: x, y: y});
+			else
+				moveTokens(x, y);
+		} else {
+			// Change scenes.
+			let tokens = [];
+			for (const t of canvas.tokens.controlled)
+				tokens.push(t);
+
+			if (levelID)
+				await scene.view({level: levelID});
+			else
+				await scene.view();
+			canvas.pan({
+				x: x,
+				y: y
+			});
+			if (mode == 'Goto')
+				canvas.ping({x: x, y: y});
+			else
+				createTokens(tokens, x, y);
+		}
 	}
 }
 
-async function moveTokens(x, y) {
-	if (canvas.tokens.controlled.length < 1) {
-		// If user is a player and has no token on the scene create a token
-		// for the player's character (if one's assigned).
-
+async function createTokens(tokens, x ,y) {
+	// If user is a player and has no token on the scene create a token
+	// for the player's character (if one's assigned).
+	
+	if (tokens.length == 0) {
+		// If no token selected and GM or the player has no assigned character just exit.
 		if (game.user.isGM || !game.user.character)
 			return;
+		
+		// Look for the assigned character on the scene and use it if found.
 
-		// Find the assigned character.
-
-		const tokens = canvas.tokens.placeables;
-		const token = tokens.find(t => {
+		const token = canvas.tokens.placeables.find(t => {
 			if (!t.actor) return false;
 			return t.actor.id == game.user.character.id;
 		});
 
 		if (token) {
 			// Select the token.
-			canvas.tokens.releaseAll();
 			await token.control({ releaseOthers: true });
+			token.document.move([{x: x, y: y}], {animate: false, constrainOptions: {ignoreWalls: true}});
 			
 		} else {
 			// No token for assigned character found for player; create one.
@@ -498,9 +517,69 @@ async function moveTokens(x, y) {
 			}));
 
 			let tokenList = await canvas.scene.createEmbeddedDocuments('Token', tokens);
-			return;
+		}
+		return;
+	}
+
+	// Create copies of the tokens selected on the other scene here.
+	
+	let newTokens = [];
+	let deleteTokens = [];
+
+	for (let token of tokens) {
+		let newToken = token.document.toObject();
+		newTokens.push(newToken);
+		if (newToken.actorLink) {
+			// If a token already exists in this scene for a linked actor
+			// delete the existing token to avoid duplicate.
+			const existent = canvas.tokens.placeables.find(t => {
+				if (!t.actor) return false;
+				return t.actor.id == newToken.actorId;
+			});
+			if (existent)
+				deleteTokens.push(existent.id);
 		}
 	}
+
+	let gridx = Math.floor(x / canvas.grid.size);
+	let gridy = Math.floor(y / canvas.grid.size);
+	let startx = gridx * canvas.grid.size;
+	x = startx;
+	y = gridy * canvas.grid.size;
+
+	let i = 1;
+
+	for (let token of newTokens) {
+		token.x = x;
+		token.y = y;
+		x += canvas.grid.size;
+		if (i++ % 3 == 0) {
+			y += canvas.grid.size;
+			x = startx;
+		}
+	}
+	try {
+		let tokenList = await canvas.scene.createEmbeddedDocuments('Token', newTokens);
+		for (let t of tokenList) {
+			const placeable = canvas.tokens.placeables.find(p => {
+				if (!p.actor) return false;
+				return p.document.id == t.id;
+			});
+			if (placeable)
+				placeable.control({ releaseOthers: false });
+		}
+	} catch (err) {
+		ui.notifications.error(err);
+	}
+
+	if (deleteTokens.length)
+		await canvas.scene.deleteEmbeddedDocuments('Token', deleteTokens);
+}
+
+
+async function moveTokens(x, y) {
+	if (canvas.tokens.controlled.length == 0)
+		return;
 
 	const deltaX = x - canvas.tokens.controlled[0].x;
 	const deltaY = y - canvas.tokens.controlled[0].y;
