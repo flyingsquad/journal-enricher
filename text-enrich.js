@@ -440,6 +440,8 @@ async function Goto(event) {
 	if (placeable) {
 		x = placeable.x;
 		y = placeable.y;
+		if (!levelID && placeable.levels && placeable.levels.size > 0)
+			levelID = Array.from(placeable.levels)[0];
 	} else {
 		const coords = label.match(/ *([0-9]+) *, *([0-9]+)/);
 		if (!coords) {
