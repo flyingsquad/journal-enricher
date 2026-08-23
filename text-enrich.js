@@ -460,8 +460,8 @@ async function Goto(event) {
 			if (levelID)
 				await scene.view({level: levelID});
 			canvas.pan({
-				x: x,
-				y: y
+				x: x + game.settings.get('journal-enricher', 'xOffset'),
+				y: y + game.settings.get('journal-enricher', 'yOffset')
 			});
 			if (mode == 'Goto')
 				canvas.ping({x: x, y: y});
@@ -698,3 +698,22 @@ function whisper(event) {
 
 	ChatMessage.create(data);
 }
+
+Hooks.once('init', async function () {
+	game.settings.register('journal-enricher', 'xOffset', {
+	  name: 'X Goto Offset',
+	  hint: 'X Offset from center for @Goto',
+	  scope: 'world',     // "world" = sync to db, "client" = local storage
+	  config: true,       // false if you dont want it to show in module config
+	  type: Number,       // Number, Boolean, String, Object
+	  default: 0
+	});
+	game.settings.register('journal-enricher', 'yOffset', {
+	  name: 'Y Goto Offset',
+	  hint: 'Y Offset from center for @Goto',
+	  scope: 'world',     // "world" = sync to db, "client" = local storage
+	  config: true,       // false if you dont want it to show in module config
+	  type: Number,       // Number, Boolean, String, Object
+	  default: 0
+	});
+});
