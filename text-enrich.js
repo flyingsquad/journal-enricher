@@ -463,9 +463,7 @@ async function Goto(event) {
 				x: x + game.settings.get('journal-enricher', 'xOffset'),
 				y: y + game.settings.get('journal-enricher', 'yOffset')
 			});
-			if (mode == 'Goto')
-				canvas.ping({x: x, y: y});
-			else
+			if (mode == 'Travel')
 				moveTokens(x, y);
 		} else {
 			// Change scenes.
@@ -481,9 +479,7 @@ async function Goto(event) {
 				x: x,
 				y: y
 			});
-			if (mode == 'Goto')
-				canvas.ping({x: x, y: y});
-			else
+			if (mode == 'Travel')
 				createTokens(tokens, x, y);
 		}
 	}
